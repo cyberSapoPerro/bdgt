@@ -7,7 +7,10 @@ authors = [
     { name = "cyber-sapoperro", email = "reclusive_coeditor@proton.me" }
 ]
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "pandas>=3.0.6",
+    "rich>=15.0.0",
+]
 
 [project.scripts]
 bdgt = "bdgt:main"
