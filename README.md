@@ -16,10 +16,8 @@ Track your daily budget and record expenses directly from your terminal.
 Install `bdgt` using [uv](https://docs.astral.sh/uv/):
 
 ```bash
-uv tool install git+https://github.com/USERNAME/REPOSITORY.git
+uv tool install git+https://github.com/cyberSapoPerro/bdgt
 ```
-
-Replace `USERNAME/REPOSITORY` with your GitHub repository path.
 
 To update the installation:
 
