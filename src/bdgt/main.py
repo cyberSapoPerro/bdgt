@@ -95,14 +95,14 @@ def print_todays_budget():
     table.add_column(style="dim")
     table.add_column(justify="right", style="white")
     table.add_row(
-        "Presupuesto restante",
+        "Budget left",
         f"$ {float(state["budget_left"]):,.2f}"
     )
 
     # Panel principal
     content = Table.grid(padding=(0,1))
     content.add_row(
-        Text("Disponible para hoy", style="bold dim")
+        Text("Left for today", style="bold dim")
     )
     content.add_row(
         Text(f"$ {todays_budget:,.2}", style="bold green")
@@ -114,7 +114,7 @@ def print_todays_budget():
     CONSOLE.print(
         Panel(
             content,
-            title="[bold cyan]Tu presupuesto[/]",
+            title="[bold cyan]bdgt[/]",
             subtitle=f"[dim]{datetime.today().strftime("%d/%m/%Y")}",
             border_style="green",
             padding=(1,3),
