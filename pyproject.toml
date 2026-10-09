@@ -1,7 +1,7 @@
 [project]
 name = "bdgt"
-version = "0.1.0"
-description = "Add your description here"
+version = "0.1.1"
+description = "A simple budget manager for the terminal"
 readme = "README.md"
 authors = [
     { name = "cyber-sapoperro", email = "reclusive_coeditor@proton.me" }
@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.scripts]
-bdgt = "bdgt:main"
+bdgt = "bdgt.main:main"
 
 [build-system]
 requires = ["uv_build>=0.12.23,<0.13.0"]
