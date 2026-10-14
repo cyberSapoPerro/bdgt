@@ -1,3 +1,5 @@
+use chrono::NaiveDate;
+use chrono::ParseError;
 use clap::Parser;
 use clap::Subcommand;
 use serde::Deserialize;
@@ -8,10 +10,18 @@ use std::path::PathBuf;
 // Parser
 
 #[derive(Parser)]
-#[command(name = "bdgt_rs", version = "1.0", about = "Simple budget manager")]
+#[command(
+    name = "bdgt_rs",
+    version = "1.0",
+    about = "Simple budget manager"
+)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
+}
+
+fn parse_date(s: &str) -> Result<NaiveDate, ParseError> {
+    NaiveDate::parse_from_str(s, "%Y-%m-%d")
 }
 
 #[derive(Subcommand)]
@@ -20,8 +30,8 @@ enum Commands {
     Set {
         #[arg(long)]
         budget: f64,
-        #[arg(long)]
-        until: String,
+        #[arg(long, value_parser = parse_date)]
+        until: NaiveDate,
     },
 
     /// Add a new expense
@@ -38,12 +48,12 @@ enum Commands {
 
 #[derive(Serialize, Deserialize, Debug)]
 struct State {
-    start: String,
-    end: String,
+    start: NaiveDate,
+    end: NaiveDate,
+    last_entry: NaiveDate,
     total_budget: f64,
     budget_left: f64,
     todays_budget: f64,
-    last_entry: String,
 }
 
 fn state_path() -> PathBuf {
@@ -71,6 +81,5 @@ fn load_state() -> Result<State, Box<dyn std::error::Error>> {
 }
 
 fn main() {
-    // let cli = Cli::parse();
-    println!("foo")
+    let cli = Cli::parse();
 }
