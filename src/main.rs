@@ -1,5 +1,6 @@
+use chrono::Days;
+use chrono::Local;
 use chrono::NaiveDate;
-use chrono::ParseError;
 use clap::Parser;
 use clap::Subcommand;
 use serde::Deserialize;
@@ -20,18 +21,14 @@ struct Cli {
     command: Commands,
 }
 
-fn parse_date(s: &str) -> Result<NaiveDate, ParseError> {
-    NaiveDate::parse_from_str(s, "%Y-%m-%d")
-}
-
 #[derive(Subcommand)]
 enum Commands {
     /// Set your budget
     Set {
         #[arg(long)]
         budget: f64,
-        #[arg(long, value_parser = parse_date)]
-        until: NaiveDate,
+        #[arg(long)]
+        until: String,
     },
 
     /// Add a new expense
@@ -80,6 +77,34 @@ fn load_state() -> Result<State, Box<dyn std::error::Error>> {
     Ok(state)
 }
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>>{
     let cli = Cli::parse();
+
+    match cli.command {
+        Commands::Set { budget, until } => {
+            let today: NaiveDate = Local::now().date_naive();
+            let future: NaiveDate = if until.starts_with('+') {
+                let days_left: u64 = until.parse().unwrap();
+                today.checked_add_days(Days::new(days_left)).unwrap() // TODO Error managment
+            } else {
+                NaiveDate::parse_from_str(&until, "%Y-%m-%d").unwrap() // TODO Error managment
+            };
+            let days_left = (future - today).num_days() as f64;
+            let state = State {
+                start: today,
+                end: future,
+                last_entry: today,
+                total_budget: budget,
+                budget_left: budget,
+                todays_budget: budget / days_left
+            };
+            save_state(&state)
+        }
+        
+        Commands::Add { name, price } => {
+            println!("Add command");
+            Ok(())
+        }
+    }
+
 }
