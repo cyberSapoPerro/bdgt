@@ -77,6 +77,36 @@ fn load_state() -> Result<State, Box<dyn std::error::Error>> {
     Ok(state)
 }
 
+// CSV managment
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Entry{
+    date: NaiveDate,
+    name: String,
+    price: f64,
+}
+
+fn save_entry(entry: &Entry) -> Result<(), Box<dyn std::error::Error>> {
+    let home = std::env::var("HOME").unwrap();
+    let path = PathBuf::from(home)
+        .join(".local")
+        .join("share")
+        .join("bdgt_rs")
+        .join("db.csv");
+    fs::create_dir_all(path.parent().unwrap())?;
+    let file = fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(&path)?;
+    let mut writer = csv::WriterBuilder::new()
+        .has_headers(!path.exists())
+        .from_writer(file);
+    writer.serialize(entry)?;
+    writer.flush()?;
+    Ok(())
+}
+
+
 fn main() -> Result<(), Box<dyn std::error::Error>>{
     let cli = Cli::parse();
 
@@ -102,8 +132,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>>{
         }
         
         Commands::Add { name, price } => {
-            println!("Add command");
-            Ok(())
+            let today: NaiveDate = Local::now().date_naive();
+            let entry = Entry {
+                date: today,
+                name: name,
+                price: price
+            };
+            save_entry(&entry)
         }
     }
 
