@@ -138,7 +138,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>>{
                 name: name,
                 price: price
             };
-            save_entry(&entry)
+            save_entry(&entry)?;
+
+            let mut state = load_state().unwrap();
+            state.budget_left -= price;
+            state.todays_budget -= price;
+            save_state(&state)?;
+
+            print_budget()?;
+
+            Ok(())
         }
     }
 
