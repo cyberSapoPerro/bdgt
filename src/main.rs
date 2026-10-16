@@ -106,6 +106,22 @@ fn save_entry(entry: &Entry) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+fn print_budget() -> Result<(), Box<dyn std::error::Error>>{
+    let mut state = load_state()?;
+    let today = Local::now().date_naive();
+
+    if state.last_entry < today {
+        let days_left: f64 = state.end.signed_duration_since(state.start).num_days() as f64;
+        state.todays_budget = state.budget_left / days_left;
+        save_state(&state)?;
+    } 
+
+    // Print
+    println!("Todays budget left: $ {:.0}", state.todays_budget);
+    println!("Budget left: $ {:.0}", state.budget_left);
+
+    Ok(())
+}
 
 fn main() -> Result<(), Box<dyn std::error::Error>>{
     let cli = Cli::parse();
@@ -128,7 +144,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>>{
                 budget_left: budget,
                 todays_budget: budget / days_left
             };
-            save_state(&state)
+            save_state(&state)?;
+
+            print_budget()?;
+
+            Ok(())
         }
         
         Commands::Add { name, price } => {
