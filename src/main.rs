@@ -3,6 +3,7 @@ use chrono::Local;
 use chrono::NaiveDate;
 use clap::Parser;
 use clap::Subcommand;
+use colored::Colorize;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fs;
@@ -109,16 +110,43 @@ fn save_entry(entry: &Entry) -> Result<(), Box<dyn std::error::Error>> {
 fn print_budget() -> Result<(), Box<dyn std::error::Error>>{
     let mut state = load_state()?;
     let today = Local::now().date_naive();
+    let days_left = state.end.signed_duration_since(today).num_days();
 
     if state.last_entry < today {
-        let days_left: f64 = state.end.signed_duration_since(state.start).num_days() as f64;
-        state.todays_budget = state.budget_left / days_left;
-        save_state(&state)?;
+        if days_left > 0 {
+            state.todays_budget = state.budget_left / days_left as f64;
+            save_state(&state)?;
+        }
     } 
 
     // Print
-    println!("Todays budget left: $ {:.0}", state.todays_budget);
-    println!("Budget left: $ {:.0}", state.budget_left);
+    let line1 = format!(
+        "{} {} {:.2}",
+        "Todays budget:".bold(),
+        "$".green(),
+        state.todays_budget.to_string().green()
+    );
+    let line2 = format!(
+        "{} {:.2} {} {} {}",
+        "Budget left: $".dimmed(),
+        state.budget_left.to_string().dimmed(),
+        "for".dimmed(),
+        days_left.to_string().dimmed(),
+        "days".dimmed(),
+    );
+
+    let content_width = console::measure_text_width(&line1)
+        .max(console::measure_text_width(&line2));
+    let width = content_width + 2;
+
+    let top = format!("╭{}╮", "─".repeat(width));
+    let bottom = format!("╰{}╯", "─".repeat(width));
+
+    println!("{}", top);
+    println!("│ {}{} │", line1, " ".repeat(content_width - console::measure_text_width(&line1)));
+    println!("│ {}{} │", line2, " ".repeat(content_width - console::measure_text_width(&line2)));
+    println!("{}", bottom);
+
 
     Ok(())
 }
