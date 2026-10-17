@@ -135,18 +135,18 @@ fn print_budget() -> Result<(), Box<dyn std::error::Error>>{
         "days".dimmed(),
     );
 
-    let content_width = console::measure_text_width(&line1)
-        .max(console::measure_text_width(&line2));
+    let line1_width = console::measure_text_width(&line1);
+    let line2_width = console::measure_text_width(&line2);
+    let content_width = line1_width.max(line2_width);
     let width = content_width + 2;
 
     let top = format!("╭{}╮", "─".repeat(width));
     let bottom = format!("╰{}╯", "─".repeat(width));
 
     println!("{}", top);
-    println!("│ {}{} │", line1, " ".repeat(content_width - console::measure_text_width(&line1)));
-    println!("│ {}{} │", line2, " ".repeat(content_width - console::measure_text_width(&line2)));
+    println!("│ {}{} │", line1, " ".repeat(content_width - line1_width));
+    println!("│ {}{} │", line2, " ".repeat(content_width - line2_width));
     println!("{}", bottom);
-
 
     Ok(())
 }
